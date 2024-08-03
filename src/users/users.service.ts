@@ -7,6 +7,7 @@ import { Repository } from 'typeorm';
 import { User } from './entities/user.entity';
 import { UserSignUpDto } from './dto/signup-user.dto';
 import { hash, compare } from 'bcrypt';
+import { sign } from 'jsonwebtoken';
 
 @Injectable()
 export class UsersService {
@@ -63,4 +64,16 @@ export class UsersService {
   async findUserByEmail(email: string) {
     return await this.usersRepository.findOneBy({ email });
   }
+  
+  async getAccessToken(user: User): Promise<string> {
+    if (!process.env.ACCESS_TOKEN_SECRET_KEY) {
+      throw new Error('ACCESS_TOKEN_SECRET_KEY is not defined');
+    }
+  
+    const payload = { id: user.id, email: user.email };
+    const secretKey = process.env.ACCESS_TOKEN_SECRET_KEY;
+    const options = { expiresIn: process.env.ACCESS_TOKEN_EXPIRE_TIME || '1h' }; 
+    return sign(payload, secretKey, options);
+  }
+
 }

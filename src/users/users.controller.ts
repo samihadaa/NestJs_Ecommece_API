@@ -24,7 +24,9 @@ export class UsersController {
   }
   @Post('signin')
   async signin(@Body() usersignInDto: UserSignInDto) {
-    return await this.usersService.signin(usersignInDto);
+    const user = await this.usersService.signin(usersignInDto);
+    const accessToken = await this.usersService.getAccessToken(user);
+    return {user, accessToken}
   }
 
   @Post()
